@@ -397,14 +397,14 @@ module.exports = (self) => {
 						{ id: '0', label: 'Off' },
 						{ id: '1', label: 'On' },
 					],
-			},
+				},
 			],
 			callback: function (feedback) {
 				switch (feedback.options.option) {
 					case '0':
 						if (self.data.spotlightComp === 'Off') {
 							return true
-		}
+						}
 						break
 					case '1':
 						if (self.data.spotlightComp === 'On') {
