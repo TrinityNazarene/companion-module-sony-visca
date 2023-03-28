@@ -114,6 +114,36 @@ module.exports = (self) => {
 				return false
 			},
 		},
+		exposureAll: {
+			type: 'boolean',
+			name: 'Exposure Mode',
+			description: 'Indicates the Exposure Mode set',
+			defaultStyle: {
+				color: COLORS.WHITE,
+				bgcolor: COLORS.DARK_YELLOW,
+			},
+			options: [
+				{
+					type: 'dropdown',
+					label: 'Exposure Mode',
+					id: 'option',
+					default: '0',
+					choices: [
+						{ id: '0', label: 'Auto' },
+						{ id: '1', label: 'Manual' },
+						{ id: '2', label: 'Iris Priority' },
+						{ id: '3', label: 'Shutter Priority' },
+						{ id: '4', label: 'Gain Priority' },
+						{ id: '5', label: 'Bright' },
+					],
+				},
+			],
+			callback: function (feedback) {
+				var choices = this.options[0].choices;
+				var choice = choices.find(x => x.id == feedback.options.option);
+				return choice && choice.label == self.data.exposureMode;
+			},
+		},
 		exposureAuto: {
 			type: 'boolean',
 			name: 'Auto Exposure Mode',
@@ -168,7 +198,7 @@ module.exports = (self) => {
 		},
 		exposureIrisPriority: {
 			type: 'boolean',
-			name: 'Auto Exposure Mode',
+			name: 'Iris Exposure Mode',
 			description: 'Indicates if Exposure Mode is set to Iris Priority',
 			defaultStyle: {
 				color: COLORS.WHITE,
@@ -194,7 +224,7 @@ module.exports = (self) => {
 		},
 		exposureShutterPriority: {
 			type: 'boolean',
-			name: 'Auto Exposure Mode',
+			name: 'Shutter Exposure Mode',
 			description: 'Indicates if Exposure Mode is set to Shutter Priority',
 			defaultStyle: {
 				color: COLORS.WHITE,
@@ -220,7 +250,7 @@ module.exports = (self) => {
 		},
 		exposureGainPriority: {
 			type: 'boolean',
-			name: 'Auto Exposure Mode',
+			name: 'Gain Exposure Mode',
 			description: 'Indicates if Exposure Mode is set to Gain Priority',
 			defaultStyle: {
 				color: COLORS.WHITE,
@@ -242,6 +272,32 @@ module.exports = (self) => {
 				if (feedback.options.option === '1' && self.data.exposureMode === 'Gain Priority') return true
 				if (feedback.options.option === '0' && self.data.exposureMode !== 'Gain Priority') return true
 				return false
+			},
+		},
+		exposureBright: {
+			type: 'boolean',
+			name: 'Bright Exposure Mode',
+			description: 'Indicates if Exposure Mode is set to Bright',
+			defaultStyle: {
+				color: COLORS.WHITE,
+				bgcolor: COLORS.BLACK,
+			},
+			options: [
+				{
+					type: 'dropdown',
+					label: 'Exposure Mode',
+					id: 'option',
+					default: '1',
+					choices: [
+						{ id: '0', label: 'Other' },
+						{ id: '1', label: 'Bright' },
+					],
+				}
+			],
+			callback: function (feedback) {
+				if (feedback.options.option === '1' && self.data.exposureMode === 'Bright') return true
+				if (feedback.options.option === '0' && self.data.exposureMode !== 'Bright') return true
+				return false;
 			},
 		},
 		exposureCompOnOff: {
@@ -341,14 +397,14 @@ module.exports = (self) => {
 						{ id: '0', label: 'Off' },
 						{ id: '1', label: 'On' },
 					],
-				},
+			},
 			],
 			callback: function (feedback) {
 				switch (feedback.options.option) {
 					case '0':
 						if (self.data.spotlightComp === 'Off') {
 							return true
-						}
+		}
 						break
 					case '1':
 						if (self.data.spotlightComp === 'On') {

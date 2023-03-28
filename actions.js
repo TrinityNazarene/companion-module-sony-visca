@@ -441,6 +441,7 @@ module.exports = (self) => {
 						{ id: '2', label: 'Shutter Pri' },
 						{ id: '3', label: 'Iris Pri' },
 						{ id: '4', label: 'Gain Pri' },
+						{ id: '5', label: 'Bright' },
 					],
 				},
 			],
@@ -465,6 +466,10 @@ module.exports = (self) => {
 					case 4:
 						self.VISCA.send(camId + '\x01\x04\x39\x0E\xFF')
 						self.data.exposureMode = 'Gain Priority'
+						break
+					case 5:
+						self.VISCA.send(camId + '\x01\x04\x39\x0D\xFF')
+						self.data.exposureMode = 'Bright'
 						break
 				}
 				self.checkFeedbacks()
