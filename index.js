@@ -3,6 +3,7 @@ const UpgradeScripts = require('./upgrades')
 const UpdateActions = require('./actions')
 const GetFeedbacks = require('./feedbacks')
 const GetPresets = require('./presets')
+const UpdateVariableDefinitions = require('./variables')	
 const CHOICES = require('./choices')
 
 class SonyVISCAInstance extends InstanceBase {
@@ -45,7 +46,9 @@ class SonyVISCAInstance extends InstanceBase {
 		this.updateFeedbacks()
 		this.updateActions() // export actions
 		this.updatePresets()
+		this.updateVariableDefinitions();
 		this.init_udp()
+		this.updateVariables();
 	}
 
 	// When module gets deleted
@@ -109,6 +112,10 @@ class SonyVISCAInstance extends InstanceBase {
 		this.setPresetDefinitions(GetPresets(this))
 	}
 
+	updateVariableDefinitions() {
+		UpdateVariableDefinitions(this)
+	}
+
 	viscaToString(payload) {
 		let response = payload.toString('hex')
 
@@ -160,6 +167,11 @@ class SonyVISCAInstance extends InstanceBase {
 			this.updateStatus(InstanceStatus.BadConfig)
 		}
 		this.log('info', 'Connection Initialized')
+	}
+	updateVariables() {
+		this.setVariableValues({
+			'ptSpeed': CHOICES.SPEED.find((item) => item.id === this.ptSpeed).label,
+		})
 	}
 }
 

@@ -108,6 +108,7 @@ module.exports = (self) => {
 				if (ptSpeedIndex > 0) {
 					self.ptSpeed = CHOICES.SPEED[ptSpeedIndex - 1].id
 					ptSpeed = String.fromCharCode(parseInt(self.ptSpeed, 16) & 0xff)
+					self.updateVariables();
 				}
 			},
 		},
@@ -119,6 +120,7 @@ module.exports = (self) => {
 				if (ptSpeedIndex < CHOICES.SPEED.length - 1) {
 					self.ptSpeed = CHOICES.SPEED[ptSpeedIndex + 1].id
 					ptSpeed = String.fromCharCode(parseInt(self.ptSpeed, 16) & 0xff)
+					self.updateVariables();
 				}
 			},
 		},
