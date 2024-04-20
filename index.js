@@ -29,12 +29,15 @@ class SonyVISCAInstance extends InstanceBase {
 
 				buffer.writeUInt16BE(payload.length, 2)
 				buffer.writeUInt32BE(this.packet_counter, 4)
-
 				if (typeof payload == 'string') {
 					buffer.write(payload, 8, 'binary')
 				} else if (typeof payload == 'object' && payload instanceof Buffer) {
 					payload.copy(buffer, 8)
 				}
+
+				let result = this.toHex(buffer.toString('latin1'));
+				this.log('debug','send: ' + result);
+
 
 				const newBuffer = buffer.slice(0, 8 + payload.length)
 				// this.log('debug', this.viscaToString(newBuffer))
@@ -111,7 +114,7 @@ class SonyVISCAInstance extends InstanceBase {
 	updatePresets() {
 		this.setPresetDefinitions(GetPresets(this))
 	}
-
+	
 	updateVariableDefinitions() {
 		UpdateVariableDefinitions(this)
 	}
@@ -129,6 +132,20 @@ class SonyVISCAInstance extends InstanceBase {
 			s += response.substr(i, 2)
 		}
 		return s
+	}
+
+	/**
+	 * Returns the passed string expanded to 2-digit hex for each character
+	 * @param {string} data: string to hexify
+	 * @param {string} delim: string to insert between characters
+	 * @since 1.0.0
+	 */
+	toHex = (data, delim = '') => {
+		return [...data]
+			.map((hex) => {
+				return ('0' + Number(hex.charCodeAt(0)).toString(16)).slice(-2)
+			}) 
+			.join(delim)
 	}
 
 	init_udp() {
@@ -162,15 +179,45 @@ class SonyVISCAInstance extends InstanceBase {
 				this.log('debug', 'UDP status_change: ' + status)
 				this.updateStatus(status, message)
 			})
+
+			this.udp.on('data', (data) => {
+				let result = this.toHex(data.toString('latin1'));
+				if(result.endsWith('ff')) {
+					if(result.startsWith('8109')) {
+						this.inquiryCommand = result;
+					} else if(result.startsWith('9050')) {
+						this.inquiryResult(this.inquiryCommand, result);
+					}
+					//this.log('debug','UDP: ' + result + ' ')
+				}
+			});
+
 		} else {
 			this.log('error', 'No host configured')
 			this.updateStatus(InstanceStatus.BadConfig)
 		}
 		this.log('info', 'Connection Initialized')
 	}
+
+	inquiryResult(command, result) {
+		this.log('debug', 'cmd: ' + command + ', result: ' + result);
+
+		if(command == '8109044dff') {
+			this.inquiryBright = result;
+			this.updateVariables();
+		}
+	}
 	updateVariables() {
+		
+		const camId = String.fromCharCode(parseInt(this.config.id))
+		//8x 09 04 4D FF
+		this.log('debug','inquire')
+		this.VISCA.send(camId + '\x09\x04\x4D\xFF')
+		this.inquiryCommand='8109044dff';
+		
 		this.setVariableValues({
 			'ptSpeed': CHOICES.SPEED.find((item) => item.id === this.ptSpeed).label,
+			'expBright': this.inquiryBright
 		})
 	}
 }
